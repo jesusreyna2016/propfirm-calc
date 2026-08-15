@@ -500,7 +500,7 @@ function EditModal({ acc,onSave,onClose,t }) {
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [lang,setLang]=useState("es");
+  const [lang,setLang]=useState("en");
   const t=T[lang];
 
   // ── INPUTS: lo que tú controlas ──────────────────────────────────────────────
