@@ -4,21 +4,21 @@ const {
   useEffect
 } = React;
 const C = {
-  bg: "#06070e",
-  card: "#0c0d1a",
-  card2: "#090a14",
-  border: "#14162e",
-  border2: "#1e2048",
-  green: "#00e5a0",
-  red: "#ff4d6a",
-  gold: "#f5c842",
-  blue: "#4f8eff",
+  bg: "#0a0d11",
+  card: "#11161c",
+  card2: "#0d1218",
+  border: "#242f3a",
+  border2: "#33414f",
+  green: "#34c98a",
+  red: "#ef5f6b",
+  gold: "#c79235",
+  blue: "#6f8cf5",
   purple: "#a78bfa",
-  orange: "#fb923c",
+  orange: "#e8933a",
   teal: "#22d3ee",
-  text: "#d4d4ec",
-  muted: "#52527a",
-  dim: "#1e2040"
+  text: "#e9eef3",
+  muted: "#8695a6",
+  dim: "#1b232c"
 };
 const fmt = v => `$${Math.abs(Math.round(v)).toLocaleString("en-US")}`;
 const fmtK = v => Math.abs(v) >= 1000 ? `$${(Math.abs(v) / 1000).toFixed(1)}k` : fmt(v);
