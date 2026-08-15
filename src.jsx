@@ -498,38 +498,49 @@ function EditModal({ acc,onSave,onClose,t }) {
   );
 }
 
+// ─── PERSISTENCE ─────────────────────────────────────────────────────────────
+// Keeps your inputs & pipeline across refreshes (localStorage).
+function usePersisted(key, init) {
+  const [v, setV] = useState(() => {
+    try { const s = localStorage.getItem("pfc_" + key); return s != null ? JSON.parse(s) : init; }
+    catch (_) { return init; }
+  });
+  useEffect(() => { try { localStorage.setItem("pfc_" + key, JSON.stringify(v)); } catch (_) {} }, [key, v]);
+  return [v, setV];
+}
+
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang,setLang]=useState("en");
   const t=T[lang];
 
   // ── INPUTS: lo que tú controlas ──────────────────────────────────────────────
-  const [dailyMin,    setDailyMin]    = useState(300);   // ganancia mín/día
-  const [dailyMax,    setDailyMax]    = useState(400);   // ganancia máx/día
-  const [withdrawAmt, setWithdrawAmt] = useState(1350);  // cuánto retiras por evento
-  const [triggerPnl,  setTriggerPnl]  = useState(4000);  // P&L para disparar retiro
-  const [c1Days,      setC1Days]      = useState(10);    // días reales ciclo 1 (con varianza)
-  const [c2Days,      setC2Days]      = useState(5);     // días reales ciclo 2+
-  const [tradingDays, setTradingDays] = useState(22);    // días hábiles/mes
-  const [monthGoal,   setMonthGoal]   = useState(20000); // ← TU META: el calculator calcula las cuentas
-  const [graduateAt,  setGraduateAt]  = useState(4);    // retiros para ir a vivo
-  const [liveBuffer,  setLiveBuffer]  = useState(2500);
-  const [liveWithdraw,setLiveWithdraw]= useState(350);  // retiro diario en cuenta viva
+  const [dailyMin,    setDailyMin]    = usePersisted("dailyMin", 300);
+  const [dailyMax,    setDailyMax]    = usePersisted("dailyMax", 400);
+  const [withdrawAmt, setWithdrawAmt] = usePersisted("withdrawAmt", 1350);
+  const [triggerPnl,  setTriggerPnl]  = usePersisted("triggerPnl", 4000);
+  const [c1Days,      setC1Days]      = usePersisted("c1Days", 10);
+  const [c2Days,      setC2Days]      = usePersisted("c2Days", 5);
+  const [tradingDays, setTradingDays] = usePersisted("tradingDays", 22);
+  const [monthGoal,   setMonthGoal]   = usePersisted("monthGoal", 20000);
+  const [graduateAt,  setGraduateAt]  = usePersisted("graduateAt", 4);
+  const [liveBuffer,  setLiveBuffer]  = usePersisted("liveBuffer", 2500);
+  const [liveWithdraw,setLiveWithdraw]= usePersisted("liveWithdraw", 350);
   // Varianza
-  const [winRate,     setWinRate]     = useState(0.62);
-  const [avgLoss,     setAvgLoss]     = useState(200);
-  const [dailyDDLimit,setDailyDDLimit]= useState(2000);
-  const [totalDDLimit,setTotalDDLimit]= useState(10000);
+  const [winRate,     setWinRate]     = usePersisted("winRate", 0.62);
+  const [avgLoss,     setAvgLoss]     = usePersisted("avgLoss", 200);
+  const [dailyDDLimit,setDailyDDLimit]= usePersisted("dailyDDLimit", 2000);
+  const [totalDDLimit,setTotalDDLimit]= usePersisted("totalDDLimit", 10000);
   const [simRes,      setSimRes]      = useState(null);
   const [simRunning,  setSimRunning]  = useState(false);
   // Costos
-  const [evalFee,     setEvalFee]     = useState(350);
-  const [platformCost,setPlatformCost]= useState(150);
-  const [otherCost,   setOtherCost]   = useState(100);
-  const [taxRate,     setTaxRate]     = useState(25);
-  const [hoursPerDay, setHoursPerDay] = useState(3);
+  const [evalFee,     setEvalFee]     = usePersisted("evalFee", 350);
+  const [platformCost,setPlatformCost]= usePersisted("platformCost", 150);
+  const [otherCost,   setOtherCost]   = usePersisted("otherCost", 100);
+  const [taxRate,     setTaxRate]     = usePersisted("taxRate", 25);
+  const [hoursPerDay, setHoursPerDay] = usePersisted("hoursPerDay", 3);
   // Pipeline
-  const [accounts, setAccounts] = useState([
+  const [accounts, setAccounts] = usePersisted("accounts", [
     {id:1,name:"FTMO #1",firm:"FTMO",phase:"funded",withdrawalCount:2,currentPnl:2100,color:C.green,dailyTarget:350,graduateAt:4,triggerPnl:4000,withdrawAmt:1350},
     {id:2,name:"MFF #1",firm:"MyFundedFutures",phase:"funded",withdrawalCount:1,currentPnl:900,color:C.purple,dailyTarget:350,graduateAt:4,triggerPnl:4000,withdrawAmt:1350},
     {id:3,name:"Apex #1",firm:"Apex",phase:"eval",withdrawalCount:0,currentPnl:1500,color:C.blue,dailyTarget:350,graduateAt:4,triggerPnl:4000,withdrawAmt:1350},
@@ -596,7 +607,7 @@ export default function App() {
 
   return (
     <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Inter',system-ui,sans-serif",color:C.text,paddingBottom:40}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 ::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:${C.bg}}::-webkit-scrollbar-thumb{background:${C.dim};border-radius:2px}
 input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
@@ -626,7 +637,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
           {/* Left: title + lang + badges */}
           <div style={{flex:"1 1 auto",minWidth:0}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
-              <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:"-0.3px"}}>{t.title}</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#fff",letterSpacing:"-0.3px",fontFamily:"'Space Grotesk',sans-serif"}}>{t.title}</div>
               <button onClick={()=>setLang(l=>l==="es"?"en":"es")}
                 style={{background:C.border,border:`1px solid ${C.border2}`,color:C.text,padding:"5px 11px",cursor:"pointer",fontFamily:"inherit",fontSize:11,fontWeight:700,borderRadius:6,letterSpacing:"0.4px",whiteSpace:"nowrap",flexShrink:0}}>
                 {t.langBtn}
@@ -1004,6 +1015,14 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
             )}
           </div>
         )}
+      </div>
+      {/* Brand footer — ties the tool back to the TradeDadLog ecosystem */}
+      <div style={{maxWidth:1100,margin:"30px auto 0",padding:"18px 16px 4px",borderTop:`1px solid ${C.border}`,display:"flex",flexWrap:"wrap",gap:"6px 16px",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
+        <span style={{fontSize:12.5,color:C.muted}}>Part of <a href="https://tradedadlog.netlify.app/" style={{color:C.gold,fontWeight:700,textDecoration:"none"}}>TradeDadLog</a> — free tools for disciplined traders</span>
+        <span style={{color:C.dim}}>·</span>
+        <a href="https://trading-jo.netlify.app/" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>Trading Journal</a>
+        <span style={{color:C.dim}}>·</span>
+        <a href="https://x.com/TradeDadLog" target="_blank" rel="noopener" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>@TradeDadLog</a>
       </div>
     </div>
   );
