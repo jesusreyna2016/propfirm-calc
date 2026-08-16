@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 
 const C = {
   bg:"#0a0d11", card:"#11161c", card2:"#0d1218",
@@ -366,7 +367,7 @@ function Histogram({ data,color }) {
   return (
     <div>
       <div style={{display:"flex",alignItems:"flex-end",gap:2,height:65,marginBottom:4}}>
-        {entries.map(({v},i)=><div key={i} style={{flex:1,height:`${(v/maxV)*60}px`,background:color,borderRadius:"2px 2px 0 0",opacity:0.85,minWidth:3}}/>)}
+        {entries.map(({v},i)=><motion.div key={i} initial={{height:0}} animate={{height:`${(v/maxV)*60}px`}} transition={{duration:0.4,delay:i*0.015,ease:"easeOut"}} style={{flex:1,background:color,borderRadius:"2px 2px 0 0",opacity:0.85,minWidth:3}}/>)}
       </div>
       <div style={{display:"flex",gap:2}}>
         {entries.map(({k},i)=><div key={i} style={{flex:1,textAlign:"center",fontSize:8,color:C.dim,overflow:"hidden",minWidth:3}}>{k>=1000?`$${k/1000}k`:k}</div>)}
@@ -606,6 +607,7 @@ export default function App() {
   const TABS=[{k:"sistema",l:t.tabSys},{k:"varianza",l:t.tabVar},{k:"riesgo",l:t.tabRisk},{k:"neto",l:t.tabNet},{k:"pipeline",l:t.tabPipe}];
 
   return (
+    <MotionConfig reducedMotion="user">
     <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Inter',system-ui,sans-serif",color:C.text,paddingBottom:40}}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -700,6 +702,10 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
           ))}
         </div>
 
+        <AnimatePresence mode="wait">
+        <motion.div key={tab}
+          initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}
+          transition={{duration:0.26,ease:[0.22,1,0.36,1]}}>
         {/* ══ SISTEMA ══ */}
         {tab==="sistema"&&(
           <div>
@@ -1015,6 +1021,8 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
             )}
           </div>
         )}
+        </motion.div>
+        </AnimatePresence>
       </div>
       {/* Brand footer, ties the tool back to the TradeDadLog ecosystem */}
       <div style={{maxWidth:1100,margin:"30px auto 0",padding:"18px 16px 4px",borderTop:`1px solid ${C.border}`,display:"flex",flexWrap:"wrap",gap:"6px 16px",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
@@ -1025,5 +1033,6 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
         <a href="https://x.com/TradeDadLog" target="_blank" rel="noopener" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>@TradeDadLog</a>
       </div>
     </div>
+    </MotionConfig>
   );
 }
