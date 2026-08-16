@@ -79,7 +79,7 @@ const T = {
     rLI2: "Income mes 2+/acc",
     rLUp: "Upgrade vs fondeo",
     sysNote: (accs, live, net, hr, roi, goal, mo) => `Endgame con ${accs} cuentas en vivo: ${fmt(live)}/mes · ${fmt(net)}/mes neto · $${Math.round(hr)}/hora efectiva · ${Math.round(roi)}% ROI sobre fees. Supera la meta de ${fmtK(goal)} desde el mes ${mo}.`,
-    vTitle: "500 simulaciones Monte Carlo — fase fondeada",
+    vTitle: "500 simulaciones Monte Carlo, fase fondeada",
     vRun: "↻ Re-ejecutar",
     vRunning: "Simulando…",
     vWinRate: "Win rate (días ganadores)",
@@ -104,7 +104,7 @@ const T = {
     vRHard: "Caso difícil (P90)",
     vRMargin: "Margen extra",
     vNoSim: "Pulsa Re-ejecutar para correr la simulación",
-    vNote: (pct, wr, loss, med, ideal, fee) => `${pct < 5 ? "✓ Riesgo bajo" : pct < 15 ? "⚠ Riesgo moderado" : "⛔ Riesgo alto"} — ${pct.toFixed(1)}% de blow-ups con ${wr}% win rate y pérdida media de ${fmt(loss)}/día malo. Escenario realista (P50): ${fmt(med)} por cuenta. En el peor caso (P10), ${(med / fee).toFixed(1)}× el fee de evaluación.`,
+    vNote: (pct, wr, loss, med, ideal, fee) => `${pct < 5 ? "✓ Riesgo bajo" : pct < 15 ? "⚠ Riesgo moderado" : "⛔ Riesgo alto"}, ${pct.toFixed(1)}% de blow-ups con ${wr}% win rate y pérdida media de ${fmt(loss)}/día malo. Escenario realista (P50): ${fmt(med)} por cuenta. En el peor caso (P10), ${(med / fee).toFixed(1)}× el fee de evaluación.`,
     rkTitle: "Riesgo de quema (por cuenta)",
     rkProb: "PROB. REVENTAR EN FASE FONDEO",
     rkSurv: "Prob. supervivencia",
@@ -137,7 +137,7 @@ const T = {
     nOther: "Otros gastos/mes",
     nTax: "Tasa impuestos (%)",
     nHours: "Horas trading/día",
-    nBreak: "P&L mensual real — fase vivo",
+    nBreak: "P&L mensual real, fase vivo",
     nGross: "Ingreso bruto",
     nFeeRow: v => `Fees evaluación amortizados (~${fmtK(v)})`,
     nPlatRow: v => `Plataforma y datos (${fmt(v)})`,
@@ -271,7 +271,7 @@ const T = {
     rLI2: "Month 2+ income/acc",
     rLUp: "Upgrade vs funded",
     sysNote: (accs, live, net, hr, roi, goal, mo) => `Endgame with ${accs} live accounts: ${fmt(live)}/mo · ${fmt(net)}/mo net · $${Math.round(hr)}/effective hour · ${Math.round(roi)}% annual ROI on fees. Exceeds ${fmtK(goal)} goal from month ${mo}.`,
-    vTitle: "500 Monte Carlo simulations — funded phase",
+    vTitle: "500 Monte Carlo simulations, funded phase",
     vRun: "↻ Run again",
     vRunning: "Simulating…",
     vWinRate: "Win rate (winning days)",
@@ -296,7 +296,7 @@ const T = {
     vRHard: "Hard case (P90)",
     vRMargin: "Extra margin",
     vNoSim: "Click Run again to start the simulation",
-    vNote: (pct, wr, loss, med, ideal, fee) => `${pct < 5 ? "✓ Low risk" : pct < 15 ? "⚠ Moderate risk" : "⛔ High risk"} — ${pct.toFixed(1)}% blow-ups with ${wr}% win rate and avg loss of ${fmt(loss)}/bad day. Realistic scenario (P50): ${fmt(med)} per account. Even in the worst case (P10), ${(med / fee).toFixed(1)}× the evaluation fee.`,
+    vNote: (pct, wr, loss, med, ideal, fee) => `${pct < 5 ? "✓ Low risk" : pct < 15 ? "⚠ Moderate risk" : "⛔ High risk"}, ${pct.toFixed(1)}% blow-ups with ${wr}% win rate and avg loss of ${fmt(loss)}/bad day. Realistic scenario (P50): ${fmt(med)} per account. Even in the worst case (P10), ${(med / fee).toFixed(1)}× the evaluation fee.`,
     rkTitle: "Blow-up risk (per account)",
     rkProb: "PROB. OF BLOWING IN FUNDED PHASE",
     rkSurv: "Survival probability",
@@ -329,7 +329,7 @@ const T = {
     nOther: "Other expenses/month",
     nTax: "Tax rate (%)",
     nHours: "Trading hours/day",
-    nBreak: "Monthly real P&L — live phase",
+    nBreak: "Monthly real P&L, live phase",
     nGross: "Gross income",
     nFeeRow: v => `Evaluation fees (amortized, ~${fmtK(v)})`,
     nPlatRow: v => `Platform and data (${fmt(v)})`,
@@ -729,7 +729,7 @@ function Histogram({
       color: C.muted,
       fontSize: 12
     }
-  }, "—");
+  }, "–");
   const maxV = Math.max(...entries.map(e => e.v), 1);
   return React.createElement("div", null, React.createElement("div", {
     style: {
@@ -2414,7 +2414,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
       textTransform: "uppercase",
       marginBottom: 14
     }
-  }, t.rkPort, " — ", accsRec, " ", lang === "es" ? "cuentas" : "accounts"), React.createElement("div", {
+  }, t.rkPort, ", ", accsRec, " ", lang === "es" ? "cuentas" : "accounts"), React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill,minmax(145px,1fr))",
@@ -2427,7 +2427,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
     c: C.red
   }, {
     l: t.rkIncF,
-    v: simRes ? fmt(simRes.medianIncome * accsRec) : "—",
+    v: simRes ? fmt(simRes.medianIncome * accsRec) : "–",
     c: C.gold
   }, {
     l: t.rkIncAnn,
@@ -2443,7 +2443,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
     c: C.blue
   }, {
     l: t.rkRatioPort,
-    v: simRes ? `${(simRes.medianIncome / evalFee).toFixed(0)}×` : "—",
+    v: simRes ? `${(simRes.medianIncome / evalFee).toFixed(0)}×` : "–",
     c: C.green
   }].map(({
     l,
@@ -2918,7 +2918,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
       fontWeight: 700,
       textDecoration: "none"
     }
-  }, "TradeDadLog"), " — free tools for disciplined traders"), React.createElement("span", {
+  }, "TradeDadLog"), ", free tools for disciplined traders"), React.createElement("span", {
     style: {
       color: C.dim
     }

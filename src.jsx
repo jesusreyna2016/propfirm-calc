@@ -43,7 +43,7 @@ const T = {
     sysNote: (accs,live,net,hr,roi,goal,mo) =>
       `Endgame con ${accs} cuentas en vivo: ${fmt(live)}/mes · ${fmt(net)}/mes neto · $${Math.round(hr)}/hora efectiva · ${Math.round(roi)}% ROI sobre fees. Supera la meta de ${fmtK(goal)} desde el mes ${mo}.`,
     // varianza
-    vTitle:"500 simulaciones Monte Carlo — fase fondeada",
+    vTitle:"500 simulaciones Monte Carlo, fase fondeada",
     vRun:"↻ Re-ejecutar", vRunning:"Simulando…",
     vWinRate:"Win rate (días ganadores)", vAvgLoss:"Pérdida media día malo",
     vDDDay:"DD diario límite", vDDTot:"DD total límite",
@@ -58,7 +58,7 @@ const T = {
     vRHard:"Caso difícil (P90)", vRMargin:"Margen extra",
     vNoSim:"Pulsa Re-ejecutar para correr la simulación",
     vNote: (pct,wr,loss,med,ideal,fee) =>
-      `${pct<5?"✓ Riesgo bajo":pct<15?"⚠ Riesgo moderado":"⛔ Riesgo alto"} — ${pct.toFixed(1)}% de blow-ups con ${wr}% win rate y pérdida media de ${fmt(loss)}/día malo. Escenario realista (P50): ${fmt(med)} por cuenta. En el peor caso (P10), ${(med/fee).toFixed(1)}× el fee de evaluación.`,
+      `${pct<5?"✓ Riesgo bajo":pct<15?"⚠ Riesgo moderado":"⛔ Riesgo alto"}, ${pct.toFixed(1)}% de blow-ups con ${wr}% win rate y pérdida media de ${fmt(loss)}/día malo. Escenario realista (P50): ${fmt(med)} por cuenta. En el peor caso (P10), ${(med/fee).toFixed(1)}× el fee de evaluación.`,
     // riesgo
     rkTitle:"Riesgo de quema (por cuenta)",
     rkProb:"PROB. REVENTAR EN FASE FONDEO",
@@ -90,7 +90,7 @@ const T = {
     nTitle:"Costos y fiscalidad",
     nFee:"Fee evaluación/cuenta", nPlat:"Plataforma + datos/mes",
     nOther:"Otros gastos/mes", nTax:"Tasa impuestos (%)", nHours:"Horas trading/día",
-    nBreak:"P&L mensual real — fase vivo",
+    nBreak:"P&L mensual real, fase vivo",
     nGross:"Ingreso bruto",
     nFeeRow: (v)=>`Fees evaluación amortizados (~${fmtK(v)})`,
     nPlatRow: (v)=>`Plataforma y datos (${fmt(v)})`,
@@ -177,7 +177,7 @@ const T = {
     rLUp:"Upgrade vs funded",
     sysNote: (accs,live,net,hr,roi,goal,mo) =>
       `Endgame with ${accs} live accounts: ${fmt(live)}/mo · ${fmt(net)}/mo net · $${Math.round(hr)}/effective hour · ${Math.round(roi)}% annual ROI on fees. Exceeds ${fmtK(goal)} goal from month ${mo}.`,
-    vTitle:"500 Monte Carlo simulations — funded phase",
+    vTitle:"500 Monte Carlo simulations, funded phase",
     vRun:"↻ Run again", vRunning:"Simulating…",
     vWinRate:"Win rate (winning days)", vAvgLoss:"Avg loss on bad days",
     vDDDay:"Daily DD limit", vDDTot:"Total DD limit",
@@ -192,7 +192,7 @@ const T = {
     vRHard:"Hard case (P90)", vRMargin:"Extra margin",
     vNoSim:"Click Run again to start the simulation",
     vNote: (pct,wr,loss,med,ideal,fee) =>
-      `${pct<5?"✓ Low risk":pct<15?"⚠ Moderate risk":"⛔ High risk"} — ${pct.toFixed(1)}% blow-ups with ${wr}% win rate and avg loss of ${fmt(loss)}/bad day. Realistic scenario (P50): ${fmt(med)} per account. Even in the worst case (P10), ${(med/fee).toFixed(1)}× the evaluation fee.`,
+      `${pct<5?"✓ Low risk":pct<15?"⚠ Moderate risk":"⛔ High risk"}, ${pct.toFixed(1)}% blow-ups with ${wr}% win rate and avg loss of ${fmt(loss)}/bad day. Realistic scenario (P50): ${fmt(med)} per account. Even in the worst case (P10), ${(med/fee).toFixed(1)}× the evaluation fee.`,
     rkTitle:"Blow-up risk (per account)",
     rkProb:"PROB. OF BLOWING IN FUNDED PHASE",
     rkSurv:"Survival probability",
@@ -222,7 +222,7 @@ const T = {
     nTitle:"Costs & Tax",
     nFee:"Evaluation fee/account", nPlat:"Platform + data/month",
     nOther:"Other expenses/month", nTax:"Tax rate (%)", nHours:"Trading hours/day",
-    nBreak:"Monthly real P&L — live phase",
+    nBreak:"Monthly real P&L, live phase",
     nGross:"Gross income",
     nFeeRow: (v)=>`Evaluation fees (amortized, ~${fmtK(v)})`,
     nPlatRow: (v)=>`Platform and data (${fmt(v)})`,
@@ -361,7 +361,7 @@ function Row({ label,value,color=C.text }) {
 }
 function Histogram({ data,color }) {
   const entries=Object.entries(data).map(([k,v])=>({k:Number(k),v})).sort((a,b)=>a.k-b.k);
-  if (!entries.length) return <div style={{height:70,display:"flex",alignItems:"center",justifyContent:"center",color:C.muted,fontSize:12}}>—</div>;
+  if (!entries.length) return <div style={{height:70,display:"flex",alignItems:"center",justifyContent:"center",color:C.muted,fontSize:12}}>–</div>;
   const maxV=Math.max(...entries.map(e=>e.v),1);
   return (
     <div>
@@ -649,7 +649,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               <PhaseBadge phase="live" t={t}/>
             </div>
           </div>
-          {/* Right: CUENTAS NECESARIAS — el resultado principal */}
+          {/* Right: CUENTAS NECESARIAS, el resultado principal */}
           <div className="hdrchips">
             {/* Funded accounts answer */}
             <div style={{background:C.gold+"15",border:`1px solid ${C.gold}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
@@ -893,15 +893,15 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               </div>
             </div>
             <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:20}}>
-              <div style={{fontSize:11,fontWeight:700,color:C.muted,letterSpacing:"1px",textTransform:"uppercase",marginBottom:14}}>{t.rkPort} — {accsRec} {lang==="es"?"cuentas":"accounts"}</div>
+              <div style={{fontSize:11,fontWeight:700,color:C.muted,letterSpacing:"1px",textTransform:"uppercase",marginBottom:14}}>{t.rkPort}, {accsRec} {lang==="es"?"cuentas":"accounts"}</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(145px,1fr))",gap:10,marginBottom:14}}>
                 {[
                   {l:t.rkInvTot,v:fmt(evalFee*accsRec),c:C.red},
-                  {l:t.rkIncF,v:simRes?fmt(simRes.medianIncome*accsRec):"—",c:C.gold},
+                  {l:t.rkIncF,v:simRes?fmt(simRes.medianIncome*accsRec):"–",c:C.gold},
                   {l:t.rkIncAnn,v:fmt(stableLive*12),c:C.green},
                   {l:t.rkROI,v:`${roiAnnual.toFixed(0)}%`,c:C.green},
                   {l:t.rkBreak,v:`${breakEvenMonths.toFixed(1)}m`,c:C.blue},
-                  {l:t.rkRatioPort,v:simRes?`${(simRes.medianIncome/evalFee).toFixed(0)}×`:"—",c:C.green},
+                  {l:t.rkRatioPort,v:simRes?`${(simRes.medianIncome/evalFee).toFixed(0)}×`:"–",c:C.green},
                 ].map(({l,v,c})=><KPICard key={l} label={l} value={v} color={c} accent={c+"30"}/>)}
               </div>
               <div style={{background:C.gold+"08",border:`1px solid ${C.gold}25`,borderRadius:8,padding:"12px 16px",fontSize:13,color:C.muted,lineHeight:1.8}}>
@@ -1016,9 +1016,9 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
           </div>
         )}
       </div>
-      {/* Brand footer — ties the tool back to the TradeDadLog ecosystem */}
+      {/* Brand footer, ties the tool back to the TradeDadLog ecosystem */}
       <div style={{maxWidth:1100,margin:"30px auto 0",padding:"18px 16px 4px",borderTop:`1px solid ${C.border}`,display:"flex",flexWrap:"wrap",gap:"6px 16px",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
-        <span style={{fontSize:12.5,color:C.muted}}>Part of <a href="https://tradedadlog.netlify.app/" style={{color:C.gold,fontWeight:700,textDecoration:"none"}}>TradeDadLog</a> — free tools for disciplined traders</span>
+        <span style={{fontSize:12.5,color:C.muted}}>Part of <a href="https://tradedadlog.netlify.app/" style={{color:C.gold,fontWeight:700,textDecoration:"none"}}>TradeDadLog</a>, free tools for disciplined traders</span>
         <span style={{color:C.dim}}>·</span>
         <a href="https://trading-jo.netlify.app/" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>Trading Journal</a>
         <span style={{color:C.dim}}>·</span>
