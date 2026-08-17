@@ -28,6 +28,7 @@ const T = {
     // presets propfirm
     psLabel:"Cargar preset", psFirm:"Firma", psSize:"Tamaño", psCustom:"Personalizado",
     psApplied: f=>`✓ ${f} cargado`, psNote:"Punto de partida: reglas de evaluación (target, drawdown, fee). Cambian seguido; verifica con tu firma. Actualizado ago 2026.",
+    shareBtn:"🔗 Compartir", shareOk:"✓ Enlace copiado", shareFail:"No se pudo copiar",
     // sistema KPIs
     kC1:"Ciclo 1", kC1s:"días primer retiro",
     kC2:"Ciclo 2+", kC2s:"días recurrente",
@@ -168,6 +169,7 @@ const T = {
     // propfirm presets
     psLabel:"Load preset", psFirm:"Firm", psSize:"Size", psCustom:"Custom",
     psApplied: f=>`✓ ${f} loaded`, psNote:"Starting point: evaluation rules (target, drawdown, fee). They change often; verify with your firm. Updated Aug 2026.",
+    shareBtn:"🔗 Share", shareOk:"✓ Link copied", shareFail:"Couldn't copy",
     kC1:"Cycle 1", kC1s:"days to first withdrawal",
     kC2:"Cycle 2+", kC2s:"days recurring",
     kBuf:"Post-withdrawal buffer", kBufSuf:"of trigger",
@@ -605,6 +607,18 @@ export default function App() {
   };
   const psSel={background:C.card2,border:`1px solid ${C.border2}`,color:"#fff",padding:"7px 10px",fontFamily:"inherit",fontSize:12.5,outline:"none",borderRadius:6,cursor:"pointer"};
 
+  // ── SHARE SCENARIO BY URL ────────────────────────────────────────────────
+  const [shared,setShared]=useState("");
+  const shareScenario=()=>{
+    const data={dailyMin,dailyMax,withdrawAmt,triggerPnl,c1Days,c2Days,tradingDays,monthGoal,graduateAt,liveBuffer,liveWithdraw,winRate,avgLoss,dailyDDLimit,totalDDLimit,evalFee,platformCost,otherCost,taxRate,hoursPerDay,preset,lang};
+    let url=location.href;
+    try{ url=location.origin+location.pathname+"?s="+encodeURIComponent(btoa(JSON.stringify(data))); }catch(_){}
+    const flash=st=>{ setShared(st); setTimeout(()=>setShared(""),2200); };
+    const legacy=()=>{ try{ const ta=document.createElement("textarea"); ta.value=url; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); const ok=document.execCommand("copy"); document.body.removeChild(ta); return ok; }catch(_){ return false; } };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(()=>flash("ok"),()=>flash(legacy()?"ok":"fail")); }
+    else flash(legacy()?"ok":"fail");
+  };
+
   // Income por cuenta fondeada usando los días REALES que el usuario conoce
   const month1Fund  = (1+Math.max(0,Math.floor((tradingDays-c1Days)/c2Days)))*withdrawAmt;
   const month2Fund  = Math.floor(tradingDays/c2Days)*withdrawAmt;
@@ -652,6 +666,25 @@ export default function App() {
   },[dailyMin,dailyMax,winRate,avgLoss,triggerPnl,withdrawAmt,bufferAfter,graduateAt,dailyDDLimit,totalDDLimit]);
   useEffect(()=>{ runSim(); },[]);
 
+  // Load a shared scenario from ?s= on first mount (overrides persisted state).
+  useEffect(()=>{
+    try{
+      const s=new URLSearchParams(location.search).get("s"); if(!s) return;
+      const d=JSON.parse(atob(decodeURIComponent(s)));
+      const num=(k,setter)=>{ if(typeof d[k]==="number"&&!isNaN(d[k])) setter(d[k]); };
+      num("dailyMin",setDailyMin); num("dailyMax",setDailyMax); num("withdrawAmt",setWithdrawAmt); num("triggerPnl",setTriggerPnl);
+      num("c1Days",setC1Days); num("c2Days",setC2Days); num("tradingDays",setTradingDays); num("monthGoal",setMonthGoal);
+      num("graduateAt",setGraduateAt); num("liveBuffer",setLiveBuffer); num("liveWithdraw",setLiveWithdraw);
+      num("winRate",setWinRate); num("avgLoss",setAvgLoss); num("dailyDDLimit",setDailyDDLimit); num("totalDDLimit",setTotalDDLimit);
+      num("evalFee",setEvalFee); num("platformCost",setPlatformCost); num("otherCost",setOtherCost); num("taxRate",setTaxRate); num("hoursPerDay",setHoursPerDay);
+      if(d.preset&&typeof d.preset==="object") setPreset(d.preset);
+      if(d.lang==="es"||d.lang==="en") setLang(d.lang);
+      // Re-run the Monte Carlo with the decoded values so results match the shared inputs.
+      try{ setSimRes(runMC({dailyMin:d.dailyMin,dailyMax:d.dailyMax,winRate:d.winRate,avgLoss:d.avgLoss,triggerPnl:d.triggerPnl,withdrawAmt:d.withdrawAmt,bufferAfter:d.triggerPnl-d.withdrawAmt,graduateAt:d.graduateAt,dailyDDLimit:d.dailyDDLimit,totalDDLimit:d.totalDDLimit,N:500})); }catch(_){}
+      history.replaceState(null,"",location.origin+location.pathname);
+    }catch(_){}
+  },[]);
+
   const saveAcc=a=>{setAccounts(p=>p.find(x=>x.id===a.id)?p.map(x=>x.id===a.id?a:x):[...p,a]);setEditingAcc(null);};
 
   const TABS=[{k:"sistema",l:t.tabSys},{k:"varianza",l:t.tabVar},{k:"riesgo",l:t.tabRisk},{k:"neto",l:t.tabNet},{k:"pipeline",l:t.tabPipe}];
@@ -693,6 +726,10 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               <button onClick={()=>setLang(l=>l==="es"?"en":"es")}
                 style={{background:C.border,border:`1px solid ${C.border2}`,color:C.text,padding:"5px 11px",cursor:"pointer",fontFamily:"inherit",fontSize:11,fontWeight:700,borderRadius:6,letterSpacing:"0.4px",whiteSpace:"nowrap",flexShrink:0}}>
                 {t.langBtn}
+              </button>
+              <button onClick={shareScenario}
+                style={{background:shared==="ok"?C.green:"transparent",border:`1px solid ${shared==="ok"?C.green:C.gold}`,color:shared==="ok"?"#05050d":C.gold,padding:"5px 11px",cursor:"pointer",fontFamily:"inherit",fontSize:11,fontWeight:700,borderRadius:6,letterSpacing:"0.4px",whiteSpace:"nowrap",flexShrink:0,transition:"all .15s"}}>
+                {shared==="ok"?t.shareOk:shared==="fail"?t.shareFail:t.shareBtn}
               </button>
             </div>
             <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
