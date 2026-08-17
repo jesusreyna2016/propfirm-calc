@@ -343,9 +343,9 @@ function Slider({ label,min,max,step,value,onChange,color=C.green,fmtFn=fmt }) {
 }
 function KPICard({ label,value,sub,color=C.text,size=18,accent }) {
   return (
-    <div style={{background:C.card,border:`1px solid ${accent||C.border}`,borderRadius:8,padding:"14px 16px"}}>
+    <div style={{background:`linear-gradient(180deg, ${C.card}, ${C.card2})`,border:`1px solid ${accent||C.border}`,borderRadius:9,padding:"14px 16px",boxShadow:`inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 26px -22px ${color}`}}>
       <div style={{fontSize:10,fontWeight:600,color:C.muted,letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:5}}>{label}</div>
-      <div style={{fontSize:size,fontWeight:800,color,fontFamily:"monospace",lineHeight:1}}>{value}</div>
+      <div style={{fontSize:size,fontWeight:800,color,fontFamily:"monospace",lineHeight:1,textShadow:`0 0 20px ${color}44`}}>{value}</div>
       {sub&&<div style={{fontSize:11,color:C.muted,marginTop:5,lineHeight:1.4}}>{sub}</div>}
     </div>
   );
@@ -375,7 +375,7 @@ function Histogram({ data,color }) {
   return (
     <div>
       <div style={{display:"flex",alignItems:"flex-end",gap:2,height:65,marginBottom:4}}>
-        {entries.map(({v},i)=><motion.div key={i} initial={{height:0}} animate={{height:`${(v/maxV)*60}px`}} transition={{duration:0.4,delay:i*0.015,ease:"easeOut"}} style={{flex:1,background:color,borderRadius:"2px 2px 0 0",opacity:0.85,minWidth:3}}/>)}
+        {entries.map(({v},i)=><motion.div key={i} initial={{height:0}} animate={{height:`${(v/maxV)*60}px`}} transition={{duration:0.4,delay:i*0.015,ease:"easeOut"}} style={{flex:1,background:`linear-gradient(180deg, ${color}, ${color}44)`,borderRadius:"3px 3px 0 0",boxShadow:`0 0 9px -3px ${color}, inset 0 1px 0 ${color}`,minWidth:3}}/>)}
       </div>
       <div style={{display:"flex",gap:2}}>
         {entries.map(({k},i)=><div key={i} style={{flex:1,textAlign:"center",fontSize:8,color:C.dim,overflow:"hidden",minWidth:3}}>{k>=1000?`$${k/1000}k`:k}</div>)}
