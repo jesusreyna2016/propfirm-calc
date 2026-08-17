@@ -25,6 +25,9 @@ const T = {
     pGraduate:"Retiros antes de ir a vivo", pAccs:"Total cuentas",
     pGoal:"Objetivo mensual", pLiveDaily:"Retiro diario en vivo",
     fmtGrad: v=>`${v}° retiro`, fmtAccs: v=>`${v} cuentas`, fmtH: v=>`${v}h`, fmtPct: v=>`${v}%`,
+    // presets propfirm
+    psLabel:"Cargar preset", psFirm:"Firma", psSize:"Tamaño", psCustom:"Personalizado",
+    psApplied: f=>`✓ ${f} cargado`, psNote:"Punto de partida: reglas de evaluación (target, drawdown, fee). Cambian seguido; verifica con tu firma. Actualizado ago 2026.",
     // sistema KPIs
     kC1:"Ciclo 1", kC1s:"días primer retiro",
     kC2:"Ciclo 2+", kC2s:"días recurrente",
@@ -162,6 +165,9 @@ const T = {
     pGraduate:"Withdrawals before live", pAccs:"Total accounts",
     pGoal:"Monthly goal", pLiveDaily:"Daily withdrawal (live)",
     fmtGrad: v=>`${v} withdrawals`, fmtAccs: v=>`${v} accounts`, fmtH: v=>`${v}h`, fmtPct: v=>`${v}%`,
+    // propfirm presets
+    psLabel:"Load preset", psFirm:"Firm", psSize:"Size", psCustom:"Custom",
+    psApplied: f=>`✓ ${f} loaded`, psNote:"Starting point: evaluation rules (target, drawdown, fee). They change often; verify with your firm. Updated Aug 2026.",
     kC1:"Cycle 1", kC1s:"days to first withdrawal",
     kC2:"Cycle 2+", kC2s:"days recurring",
     kBuf:"Post-withdrawal buffer", kBufSuf:"of trigger",
@@ -379,6 +385,37 @@ function Histogram({ data,color }) {
 // ─── PIPELINE COMPONENTS ─────────────────────────────────────────────────────
 const FIRMS=["FTMO","MyFundedFutures","TopStep","Apex","The Funded Trader","Other"];
 const ACC_COLORS=["#00e5a0","#a78bfa","#f5c842","#4f8eff","#fb923c","#ff4d6a","#22d3ee","#4ade80"];
+
+// Evaluation-rule presets for the main futures prop firms (NQ/ES traders).
+// {target: profit target, trailDD: trailing/total drawdown, dailyDD: daily loss limit
+//  (= trailing DD for firms with no hard daily cap), fee: approx monthly eval fee USD}.
+// Starting points only, rules change often. Verified Aug 2026.
+const PRESETS={
+  "Apex":{ order:["25K","50K","100K","150K","250K"], sizes:{
+    "25K": {target:1500, trailDD:1500, dailyDD:625,  fee:147},
+    "50K": {target:3000, trailDD:2500, dailyDD:1000, fee:167},
+    "100K":{target:6000, trailDD:3000, dailyDD:2000, fee:207},
+    "150K":{target:9000, trailDD:5000, dailyDD:3000, fee:297},
+    "250K":{target:15000,trailDD:6500, dailyDD:4500, fee:517},
+  }},
+  "TopStep":{ order:["50K","100K","150K"], sizes:{
+    "50K": {target:3000, trailDD:2000, dailyDD:1000, fee:49},
+    "100K":{target:6000, trailDD:3000, dailyDD:2000, fee:99},
+    "150K":{target:9000, trailDD:4500, dailyDD:3000, fee:149},
+  }},
+  "MyFundedFutures":{ order:["50K","100K","150K"], sizes:{
+    "50K": {target:3000, trailDD:2000, dailyDD:2000, fee:80},
+    "100K":{target:6000, trailDD:3000, dailyDD:3000, fee:150},
+    "150K":{target:9000, trailDD:4500, dailyDD:4500, fee:265},
+  }},
+  "Take Profit Trader":{ order:["25K","50K","100K","150K"], sizes:{
+    "25K": {target:1500, trailDD:1000, dailyDD:1000, fee:90},
+    "50K": {target:3000, trailDD:2000, dailyDD:2000, fee:119},
+    "100K":{target:6000, trailDD:4000, dailyDD:4000, fee:231},
+    "150K":{target:9000, trailDD:6000, dailyDD:6000, fee:252},
+  }},
+};
+const PRESET_FIRMS=Object.keys(PRESETS);
 const newAcc=()=>({id:Date.now(),name:"New account",firm:"FTMO",phase:"funded",withdrawalCount:0,currentPnl:0,color:ACC_COLORS[0],dailyTarget:350,graduateAt:4,triggerPnl:4000,withdrawAmt:1350});
 
 function AccountCard({ acc,onEdit,onDelete,liveBuffer,tradingDays,t }) {
@@ -550,10 +587,23 @@ export default function App() {
   ]);
   const [editingAcc,setEditingAcc]=useState(null);
   const [tab,setTab]=useState("sistema");
+  const [preset,setPreset]=usePersisted("preset",{firm:"",size:""});
 
   // ── OUTPUTS: el calculator te dice cuántas cuentas necesitas ────────────────
   const dailyAvg    = (dailyMin+dailyMax)/2;
   const bufferAfter = triggerPnl-withdrawAmt;
+
+  // Load a prop-firm evaluation preset into the relevant inputs.
+  const applyPreset=(firm,size)=>{
+    const p=PRESETS[firm]&&PRESETS[firm].sizes[size];
+    if(!p){ setPreset({firm:"",size:""}); return; }
+    setTriggerPnl(p.target);
+    setTotalDDLimit(p.trailDD);
+    setDailyDDLimit(p.dailyDD);
+    setEvalFee(p.fee);
+    setPreset({firm,size});
+  };
+  const psSel={background:C.card2,border:`1px solid ${C.border2}`,color:"#fff",padding:"7px 10px",fontFamily:"inherit",fontSize:12.5,outline:"none",borderRadius:6,cursor:"pointer"};
 
   // Income por cuenta fondeada usando los días REALES que el usuario conoce
   const month1Fund  = (1+Math.max(0,Math.floor((tradingDays-c1Days)/c2Days)))*withdrawAmt;
@@ -680,11 +730,24 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
       <div style={{padding:"16px 18px",maxWidth:1160,margin:"0 auto"}}>
         {/* PARAMS */}
         <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:14}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:12,paddingBottom:12,borderBottom:`1px solid ${C.border}`}}>
+            <span style={{fontSize:11,fontWeight:700,color:C.gold,letterSpacing:"0.7px",textTransform:"uppercase"}}>⚡ {t.psLabel}</span>
+            <select value={preset.firm} onChange={e=>{const f=e.target.value; if(!f){setPreset({firm:"",size:""});return;} applyPreset(f,PRESETS[f].order[0]);}} style={psSel}>
+              <option value="">{t.psFirm}…</option>
+              {PRESET_FIRMS.map(f=><option key={f} value={f}>{f}</option>)}
+            </select>
+            <select value={preset.size} onChange={e=>applyPreset(preset.firm,e.target.value)} disabled={!preset.firm} style={{...psSel,opacity:preset.firm?1:0.4,cursor:preset.firm?"pointer":"not-allowed"}}>
+              <option value="">{t.psSize}…</option>
+              {preset.firm&&PRESETS[preset.firm].order.map(s=><option key={s} value={s}>{s}</option>)}
+            </select>
+            {preset.firm&&preset.size&&<span style={{fontSize:11.5,color:C.green,fontWeight:600}}>{t.psApplied(preset.firm+" "+preset.size)}</span>}
+            <span style={{fontSize:10.5,color:C.muted,flexBasis:"100%",lineHeight:1.5}}>{t.psNote}</span>
+          </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"2px 22px"}}>
             <Slider label={t.pDailyMin} min={150} max={500} step={25} value={dailyMin} onChange={v=>setDailyMin(Math.min(v,dailyMax-25))} color={C.gold}/>
             <Slider label={t.pDailyMax} min={150} max={600} step={25} value={dailyMax} onChange={v=>setDailyMax(Math.max(v,dailyMin+25))} color={C.gold}/>
             <Slider label={t.pWithdraw} min={800} max={2000} step={50} value={withdrawAmt} onChange={setWithdrawAmt} color={C.green}/>
-            <Slider label={t.pTrigger} min={2000} max={8000} step={250} value={triggerPnl} onChange={setTriggerPnl} color={C.purple}/>
+            <Slider label={t.pTrigger} min={1000} max={20000} step={250} value={triggerPnl} onChange={setTriggerPnl} color={C.purple}/>
             <Slider label={t.c1Label} min={7} max={20} step={1} value={c1Days} onChange={setC1Days} color={C.blue} fmtFn={t.fmtDias}/>
             <Slider label={t.c2Label} min={2} max={10} step={1} value={c2Days} onChange={setC2Days} color={C.blue} fmtFn={t.fmtDias}/>
             <Slider label={t.pGraduate} min={3} max={8} step={1} value={graduateAt} onChange={setGraduateAt} color={C.orange} fmtFn={t.fmtGrad}/>
@@ -801,8 +864,8 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"2px 22px"}}>
                 <Slider label={t.vWinRate} min={40} max={85} step={1} value={Math.round(winRate*100)} onChange={v=>setWinRate(v/100)} color={C.green} fmtFn={t.fmtPct}/>
                 <Slider label={t.vAvgLoss} min={50} max={600} step={25} value={avgLoss} onChange={setAvgLoss} color={C.red}/>
-                <Slider label={t.vDDDay} min={1000} max={3000} step={100} value={dailyDDLimit} onChange={setDailyDDLimit} color={C.red}/>
-                <Slider label={t.vDDTot} min={5000} max={20000} step={500} value={totalDDLimit} onChange={setTotalDDLimit} color={C.orange}/>
+                <Slider label={t.vDDDay} min={500} max={6000} step={100} value={dailyDDLimit} onChange={setDailyDDLimit} color={C.red}/>
+                <Slider label={t.vDDTot} min={1000} max={20000} step={250} value={totalDDLimit} onChange={setTotalDDLimit} color={C.orange}/>
               </div>
             </div>
             {simRes?(
@@ -922,7 +985,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
           <div className="gneto">
             <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:20,alignSelf:"start"}}>
               <div style={{fontSize:11,fontWeight:700,color:C.muted,letterSpacing:"1px",textTransform:"uppercase",marginBottom:16}}>{t.nTitle}</div>
-              <Slider label={t.nFee} min={100} max={800} step={25} value={evalFee} onChange={setEvalFee} color={C.red}/>
+              <Slider label={t.nFee} min={25} max={800} step={25} value={evalFee} onChange={setEvalFee} color={C.red}/>
               <Slider label={t.nPlat} min={0} max={500} step={25} value={platformCost} onChange={setPlatformCost} color={C.orange}/>
               <Slider label={t.nOther} min={0} max={500} step={25} value={otherCost} onChange={setOtherCost} color={C.orange}/>
               <Slider label={t.nTax} min={0} max={50} step={1} value={taxRate} onChange={setTaxRate} color={C.red} fmtFn={t.fmtPct}/>
