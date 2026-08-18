@@ -1128,7 +1128,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
       <div style={{maxWidth:1100,margin:"30px auto 0",padding:"18px 16px 4px",borderTop:`1px solid ${C.border}`,display:"flex",flexWrap:"wrap",gap:"6px 16px",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
         <span style={{fontSize:12.5,color:C.muted}}>Part of <a href="https://tradedadlog.com/" style={{color:C.gold,fontWeight:700,textDecoration:"none"}}>TradeDadLog</a>, free tools for disciplined traders</span>
         <span style={{color:C.dim}}>·</span>
-        <a href="https://trading-jo.netlify.app/" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>Trading Journal</a>
+        <a href="https://mywhyjournal.com/" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>Trading Journal</a>
         <span style={{color:C.dim}}>·</span>
         <a href="https://x.com/TradeDadLog" target="_blank" rel="noopener" style={{fontSize:12.5,color:C.muted,textDecoration:"none"}}>@TradeDadLog</a>
       </div>
