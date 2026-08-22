@@ -16,6 +16,7 @@ const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
 const T = {
   es: {
     langBtn:"🇺🇸 EN", title:"Simulador Propfirm",
+    subtitle:"Gratis. Cuántas cuentas para tu meta, riesgo de blow-up (Monte Carlo) y neto real tras fees e impuestos.",
     hFunded:"Fondeo/mes", hLive:"Vivo/mes", hNet:"Neto/mes", hPipeline:"Pipeline",
     phEval:"EVALUACIÓN", phFunded:"FONDEADA", phLive:"EN VIVO",
     tabSys:"Sistema", tabVar:"Varianza", tabRisk:"Riesgo", tabNet:"Neto", tabPipe:"Pipeline",
@@ -158,6 +159,7 @@ const T = {
   },
   en: {
     langBtn:"🇪🇸 ES", title:"Propfirm System Calculator",
+    subtitle:"Free. How many accounts to hit your goal, blow-up risk (Monte Carlo), and real net after fees and tax.",
     hFunded:"Funded/mo", hLive:"Live/mo", hNet:"Net/mo", hPipeline:"Pipeline",
     phEval:"EVALUATION", phFunded:"FUNDED", phLive:"LIVE",
     tabSys:"System", tabVar:"Variance", tabRisk:"Risk", tabNet:"Net P&L", tabPipe:"Pipeline",
@@ -732,6 +734,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                 {shared==="ok"?t.shareOk:shared==="fail"?t.shareFail:t.shareBtn}
               </button>
             </div>
+            <div style={{fontSize:12.5,color:C.muted,lineHeight:1.5,maxWidth:540,marginBottom:9}}>{t.subtitle}</div>
             <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
               <PhaseBadge phase="eval" t={t}/><span style={{color:C.dim,fontSize:11}}>→</span>
               <PhaseBadge phase="funded" t={t}/><span style={{color:C.dim,fontSize:11}}>→</span>
@@ -796,7 +799,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
         <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,marginBottom:16,overflowX:"auto"}}>
           {TABS.map(tb=>(
             <div key={tb.k} onClick={()=>setTab(tb.k)}
-              style={{padding:"9px 22px",fontSize:12,fontWeight:600,letterSpacing:"0.5px",cursor:"pointer",color:tab===tb.k?C.green:C.muted,borderBottom:`2px solid ${tab===tb.k?C.green:"transparent"}`,transition:"all .15s",textTransform:"uppercase",whiteSpace:"nowrap"}}>
+              style={{padding:"9px 22px",fontSize:12,fontWeight:600,letterSpacing:"0.5px",cursor:"pointer",color:tab===tb.k?C.green:C.muted,background:tab===tb.k?C.green+"10":"transparent",borderRadius:"7px 7px 0 0",borderBottom:`2px solid ${tab===tb.k?C.green:"transparent"}`,transition:"all .15s",textTransform:"uppercase",whiteSpace:"nowrap"}}>
               {tb.l}
             </div>
           ))}
