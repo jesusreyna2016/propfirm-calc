@@ -679,7 +679,10 @@ export default function App() {
       num("graduateAt",setGraduateAt); num("liveBuffer",setLiveBuffer); num("liveWithdraw",setLiveWithdraw);
       num("winRate",setWinRate); num("avgLoss",setAvgLoss); num("dailyDDLimit",setDailyDDLimit); num("totalDDLimit",setTotalDDLimit);
       num("evalFee",setEvalFee); num("platformCost",setPlatformCost); num("otherCost",setOtherCost); num("taxRate",setTaxRate); num("hoursPerDay",setHoursPerDay);
-      if(d.preset&&typeof d.preset==="object") setPreset(d.preset);
+      // Validate against the current PRESETS map before accepting it: a shared link can be old (a firm since
+      // renamed/removed) or tampered, and preset is persisted to localStorage, so an invalid value here would
+      // crash the preset dropdowns' PRESETS[preset.firm].order lookup on every reload from then on, not just once.
+      if(d.preset&&typeof d.preset==="object"&&PRESETS[d.preset.firm]&&PRESETS[d.preset.firm].sizes[d.preset.size]) setPreset(d.preset);
       if(d.lang==="es"||d.lang==="en") setLang(d.lang);
       // Re-run the Monte Carlo with the decoded values so results match the shared inputs.
       try{ setSimRes(runMC({dailyMin:d.dailyMin,dailyMax:d.dailyMax,winRate:d.winRate,avgLoss:d.avgLoss,triggerPnl:d.triggerPnl,withdrawAmt:d.withdrawAmt,bufferAfter:d.triggerPnl-d.withdrawAmt,graduateAt:d.graduateAt,dailyDDLimit:d.dailyDDLimit,totalDDLimit:d.totalDDLimit,N:500})); }catch(_){}
@@ -778,7 +781,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
             </select>
             <select value={preset.size} onChange={e=>applyPreset(preset.firm,e.target.value)} disabled={!preset.firm} style={{...psSel,opacity:preset.firm?1:0.4,cursor:preset.firm?"pointer":"not-allowed"}}>
               <option value="">{t.psSize}…</option>
-              {preset.firm&&PRESETS[preset.firm].order.map(s=><option key={s} value={s}>{s}</option>)}
+              {preset.firm&&PRESETS[preset.firm]&&PRESETS[preset.firm].order.map(s=><option key={s} value={s}>{s}</option>)}
             </select>
             {preset.firm&&preset.size&&<span style={{fontSize:11.5,color:C.green,fontWeight:600}}>{t.psApplied(preset.firm+" "+preset.size)}</span>}
             <span style={{fontSize:10.5,color:C.muted,flexBasis:"100%",lineHeight:1.5}}>{t.psNote}</span>
