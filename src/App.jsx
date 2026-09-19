@@ -5,7 +5,7 @@ const C = {
   bg:"#0a0d11", card:"#11161c", card2:"#0d1218",
   border:"#242f3a", border2:"#33414f",
   green:"#34c98a", red:"#ef5f6b", gold:"#c79235",
-  blue:"#6f8cf5", purple:"#a78bfa", orange:"#e8933a", teal:"#22d3ee",
+  blue:"#6f8cf5", purple:"#a78bfa", orange:"#e8933a",
   text:"#e9eef3", muted:"#8695a6", dim:"#1b232c",
 };
 const fmt  = v => `$${Math.abs(Math.round(v)).toLocaleString("en-US")}`;
@@ -760,7 +760,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               <div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtK(accsLive*month2Live)}/mes</div>
             </div>
             {/* Other stats */}
-            {[{l:t.hNet,v:fmtK(monthlyNet),c:C.teal},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c})=>(
+            {[{l:t.hNet,v:fmtK(monthlyNet),c:C.gold},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c})=>(
               <div key={l} style={{background:c+"12",border:`1px solid ${c}30`,borderRadius:7,padding:"7px 12px",textAlign:"center",minWidth:80}}>
                 <div style={{fontSize:9,color:c,fontWeight:600,letterSpacing:"0.7px",marginBottom:2,textTransform:"uppercase"}}>{l}</div>
                 <div style={{fontSize:16,fontWeight:800,color:c,fontFamily:"monospace"}}>{v}</div>
@@ -1045,7 +1045,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                   {l:t.nOthRow(otherCost),v:-otherCost,c:C.red,bar:otherCost/stableLive},
                   {l:t.nTaxBase,v:monthlyTaxable,c:C.gold,bar:monthlyTaxable/stableLive,div:true},
                   {l:t.nTaxRow(taxRate),v:-monthlyTax,c:C.red,bar:monthlyTax/stableLive},
-                  {l:t.nNetRow,v:monthlyNet,c:C.teal,bar:monthlyNet/stableLive,big:true},
+                  {l:t.nNetRow,v:monthlyNet,c:C.gold,bar:monthlyNet/stableLive,big:true},
                 ].map(({l,v,c,bar,div,big})=>(
                   <div key={l}>
                     {div&&<div style={{borderTop:`1px dashed ${C.border2}`,margin:"8px 0"}}/>}
@@ -1061,8 +1061,8 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:10}}>
                 {[
-                  {l:t.kNetM,v:fmtK(monthlyNet),c:C.teal,s:""},
-                  {l:t.kNetA,v:fmtK(monthlyNet*12),c:C.teal,s:""},
+                  {l:t.kNetM,v:fmtK(monthlyNet),c:C.gold,s:""},
+                  {l:t.kNetA,v:fmtK(monthlyNet*12),c:C.gold,s:""},
                   {l:t.kHourly,v:fmt(effectiveHourly),c:C.green,s:`${hoursPerDay}h × ${tradingDays}d`},
                   {l:t.kROI,v:`${roiAnnual.toFixed(0)}%`,c:C.green,s:""},
                   {l:t.kEffRate,v:`${((1-monthlyNet/stableLive)*100).toFixed(0)}%`,c:C.muted,s:""},
