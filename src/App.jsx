@@ -343,13 +343,19 @@ function Slider({ label,min,max,step,value,onChange,color=C.green,fmtFn=fmt }) {
     </div>
   );
 }
-function KPICard({ label,value,sub,color=C.text,size=18,accent }) {
+// `i` (the item's index in its .map) staggers the entrance so a KPI grid cascades in instead of
+// popping in as one flat block. Only `initial`/mount trigger it (framer-motion doesn't replay
+// `animate` when a value it targets hasn't changed), so a slider drag that updates `value` on an
+// already-mounted card does NOT re-fire this -- it only plays on true mount, i.e. a tab switch
+// (each tab's content remounts via the outer `key={tab}` in the AnimatePresence wrapper).
+function KPICard({ label,value,sub,color=C.text,size=18,accent,i=0 }) {
   return (
-    <div style={{background:`linear-gradient(180deg, ${C.card}, ${C.card2})`,border:`1px solid ${accent||C.border}`,borderRadius:9,padding:"14px 16px",boxShadow:`inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 26px -22px ${color}`}}>
+    <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:Math.min(i,10)*0.045,ease:[0.22,1,0.36,1]}}
+      style={{background:`linear-gradient(180deg, ${C.card}, ${C.card2})`,border:`1px solid ${accent||C.border}`,borderRadius:9,padding:"14px 16px",boxShadow:`inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 26px -22px ${color}`}}>
       <div style={{fontSize:10,fontWeight:600,color:C.muted,letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:5}}>{label}</div>
       <div style={{fontSize:size,fontWeight:800,color,fontFamily:"monospace",lineHeight:1,textShadow:`0 0 20px ${color}44`}}>{value}</div>
       {sub&&<div style={{fontSize:11,color:C.muted,marginTop:5,lineHeight:1.4}}>{sub}</div>}
-    </div>
+    </motion.div>
   );
 }
 function Tag({ children,color=C.green }) {
@@ -744,27 +750,32 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               <PhaseBadge phase="live" t={t}/>
             </div>
           </div>
-          {/* Right: CUENTAS NECESARIAS, el resultado principal */}
+          {/* Right: CUENTAS NECESARIAS, el resultado principal. Mounts once (this header sits
+              outside the per-tab AnimatePresence), so the stagger below plays on page load only,
+              not on every slider drag -- same non-replay reasoning as KPICard above. */}
           <div className="hdrchips">
             {/* Funded accounts answer */}
-            <div style={{background:C.gold+"15",border:`1px solid ${C.gold}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
+            <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:0,ease:[0.22,1,0.36,1]}}
+              style={{background:C.gold+"15",border:`1px solid ${C.gold}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.gold,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enFondeo}</div>
               <div style={{fontSize:36,fontWeight:800,color:C.gold,fontFamily:"monospace",lineHeight:1}}>{accsRec}</div>
               <div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtK(stableFund)}/mes</div>
-            </div>
+            </motion.div>
             <div style={{fontSize:18,color:C.dim,alignSelf:"center"}}>→</div>
             {/* Live accounts answer */}
-            <div style={{background:C.green+"15",border:`1px solid ${C.green}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
+            <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.06,ease:[0.22,1,0.36,1]}}
+              style={{background:C.green+"15",border:`1px solid ${C.green}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.green,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enVivo}</div>
               <div style={{fontSize:36,fontWeight:800,color:C.green,fontFamily:"monospace",lineHeight:1}}>{accsLive}</div>
               <div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtK(accsLive*month2Live)}/mes</div>
-            </div>
+            </motion.div>
             {/* Other stats */}
-            {[{l:t.hNet,v:fmtK(monthlyNet),c:C.gold},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c})=>(
-              <div key={l} style={{background:c+"12",border:`1px solid ${c}30`,borderRadius:7,padding:"7px 12px",textAlign:"center",minWidth:80}}>
+            {[{l:t.hNet,v:fmtK(monthlyNet),c:C.gold},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c},i)=>(
+              <motion.div key={l} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.12+i*0.05,ease:[0.22,1,0.36,1]}}
+                style={{background:c+"12",border:`1px solid ${c}30`,borderRadius:7,padding:"7px 12px",textAlign:"center",minWidth:80}}>
                 <div style={{fontSize:9,color:c,fontWeight:600,letterSpacing:"0.7px",marginBottom:2,textTransform:"uppercase"}}>{l}</div>
                 <div style={{fontSize:16,fontWeight:800,color:c,fontFamily:"monospace"}}>{v}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -822,7 +833,8 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               </div>
               <div style={{display:"flex",gap:12,justifyContent:"center",alignItems:"stretch",flexWrap:"wrap"}}>
                 {/* Fase fondeada */}
-                <div style={{background:C.gold+"10",border:`2px solid ${C.gold}`,borderRadius:10,padding:"18px 28px",textAlign:"center",flex:"1 1 160px",maxWidth:220}}>
+                <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:0,ease:[0.22,1,0.36,1]}}
+                  style={{background:C.gold+"10",border:`2px solid ${C.gold}`,borderRadius:10,padding:"18px 28px",textAlign:"center",flex:"1 1 160px",maxWidth:220}}>
                   <div style={{fontSize:10,color:C.gold,fontWeight:700,letterSpacing:"1px",textTransform:"uppercase",marginBottom:8}}>{t.recFunded}</div>
                   <div style={{fontSize:72,fontWeight:800,color:C.gold,fontFamily:"monospace",lineHeight:1}}>{accsRec}</div>
                   <div style={{fontSize:11,color:C.muted,marginTop:6}}>× {fmt(month2Fund)}/mes</div>
@@ -831,14 +843,15 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                     <div style={{fontSize:10,color:C.muted,marginBottom:2}}>{t.mesInicio}: <span style={{color:C.gold}}>{fmt(month1Fund)}</span></div>
                     <div style={{fontSize:10,color:C.muted}}>{t.mesEstable}: <span style={{color:C.gold}}>{fmt(month2Fund)}</span></div>
                   </div>
-                </div>
+                </motion.div>
                 {/* Arrow */}
                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 4px"}}>
                   <div style={{fontSize:28,color:C.dim}}>→</div>
                   <div style={{fontSize:9,color:C.dim,letterSpacing:"0.5px",textAlign:"center",marginTop:4,maxWidth:60}}>{graduateMonth} {lang==="es"?"meses":"months"}</div>
                 </div>
                 {/* Fase vivo */}
-                <div style={{background:C.green+"10",border:`2px solid ${C.green}`,borderRadius:10,padding:"18px 28px",textAlign:"center",flex:"1 1 160px",maxWidth:220}}>
+                <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.08,ease:[0.22,1,0.36,1]}}
+                  style={{background:C.green+"10",border:`2px solid ${C.green}`,borderRadius:10,padding:"18px 28px",textAlign:"center",flex:"1 1 160px",maxWidth:220}}>
                   <div style={{fontSize:10,color:C.green,fontWeight:700,letterSpacing:"1px",textTransform:"uppercase",marginBottom:8}}>{t.recLive}</div>
                   <div style={{fontSize:72,fontWeight:800,color:C.green,fontFamily:"monospace",lineHeight:1}}>{accsLive}</div>
                   <div style={{fontSize:11,color:C.muted,marginTop:6}}>× {fmt(month2Live)}/mes</div>
@@ -846,9 +859,10 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                   <div style={{marginTop:10,padding:"6px 10px",background:C.green+"10",borderRadius:6}}>
                     <div style={{fontSize:10,color:C.muted}}>{lang==="es"?"Retiro diario":"Daily withdrawal"}: <span style={{color:C.green}}>{fmt(liveWithdraw)}/día</span></div>
                   </div>
-                </div>
+                </motion.div>
                 {/* Math breakdown */}
-                <div style={{background:"#0a0a14",border:`1px solid ${C.border}`,borderRadius:10,padding:"16px 20px",flex:"1 1 200px",maxWidth:280}}>
+                <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.16,ease:[0.22,1,0.36,1]}}
+                  style={{background:"#0a0a14",border:`1px solid ${C.border}`,borderRadius:10,padding:"16px 20px",flex:"1 1 200px",maxWidth:280}}>
                   <div style={{fontSize:10,color:C.muted,fontWeight:600,letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:10}}>{t.howCalc}</div>
                   {[[t.accsM1label,`⌈${fmtK(monthGoal)} ÷ ${fmt(month1Fund)}⌉ = ${accsM1}`,C.muted],[t.accsM2label,`⌈${fmtK(monthGoal)} ÷ ${fmt(month2Fund)}⌉ = ${accsM2}`,C.muted],[t.accsRecLabel,`max(${accsM1}, ${accsM2}) = ${accsRec}`,C.gold]].map(([l,v,c])=>(
                     <div key={l} style={{marginBottom:8,paddingBottom:8,borderBottom:`1px solid ${C.border}`}}>
@@ -859,7 +873,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                   <div style={{fontSize:10,color:C.muted,lineHeight:1.7,marginTop:4}}>
                     {t.calcExplain(c1Days,c2Days,tradingDays,withdrawAmt,month1Fund,month2Fund,monthGoal)}
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
 
@@ -874,7 +888,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                 {l:`${accsRec} ${t.kXF}`,v:fmt(stableFund),c:C.gold,s:t.kSS},
                 {l:`${accsLive} ${t.kXL}`,v:fmt(accsLive*month2Live),c:C.green,s:t.kSS},
                 {l:t.kUp,v:`+${liveUpgradePct}%`,c:C.orange,s:t.kSS},
-              ].map(({l,v,c,s})=><KPICard key={l} label={l} value={v} sub={s} color={c}/>)}
+              ].map(({l,v,c,s},i)=><KPICard key={l} label={l} value={v} sub={s} color={c} i={i}/>)}
             </div>
             <div className="g2">
               {[
@@ -923,7 +937,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                     {l:t.vkP10,v:fmt(simRes.p10Income),c:C.red,s:""},
                     {l:t.vkP90,v:fmt(simRes.p90Income),c:C.green,s:""},
                     {l:t.vkEvt,v:simRes.totalDDEvents,c:C.orange,s:""},
-                  ].map(({l,v,c,s})=><KPICard key={l} label={l} value={v} sub={s} color={c} accent={c+"30"}/>)}
+                  ].map(({l,v,c,s},i)=><KPICard key={l} label={l} value={v} sub={s} color={c} accent={c+"30"} i={i}/>)}
                 </div>
                 <div className="g2" style={{marginBottom:12}}>
                   <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:18}}>
@@ -1014,7 +1028,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                   {l:t.rkROI,v:`${roiAnnual.toFixed(0)}%`,c:C.green},
                   {l:t.rkBreak,v:`${breakEvenMonths.toFixed(1)}m`,c:C.blue},
                   {l:t.rkRatioPort,v:simRes?`${(simRes.medianIncome/evalFee).toFixed(0)}×`:"–",c:C.green},
-                ].map(({l,v,c})=><KPICard key={l} label={l} value={v} color={c} accent={c+"30"}/>)}
+                ].map(({l,v,c},i)=><KPICard key={l} label={l} value={v} color={c} accent={c+"30"} i={i}/>)}
               </div>
               <div style={{background:C.gold+"08",border:`1px solid ${C.gold}25`,borderRadius:8,padding:"12px 16px",fontSize:13,color:C.muted,lineHeight:1.8}}>
                 {t.rkPortNote(evalFee*accsRec,breakEvenMonths,simRes?simRes.blownPct:5)}
@@ -1067,7 +1081,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                   {l:t.kROI,v:`${roiAnnual.toFixed(0)}%`,c:C.green,s:""},
                   {l:t.kEffRate,v:`${((1-monthlyNet/stableLive)*100).toFixed(0)}%`,c:C.muted,s:""},
                   {l:t.kBE,v:`${breakEvenMonths.toFixed(1)}m`,c:C.gold,s:""},
-                ].map(({l,v,c,s})=><KPICard key={l} label={l} value={v} sub={s} color={c} accent={c+"30"}/>)}
+                ].map(({l,v,c,s},i)=><KPICard key={l} label={l} value={v} sub={s} color={c} accent={c+"30"} i={i}/>)}
               </div>
             </div>
           </div>
