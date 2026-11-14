@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import NumberFlow from "@number-flow/react";
 
 const C = {
   bg:"#0a0d11", card:"#11161c", card2:"#0d1218",
@@ -348,12 +349,27 @@ function Slider({ label,min,max,step,value,onChange,color=C.green,fmtFn=fmt }) {
 // `animate` when a value it targets hasn't changed), so a slider drag that updates `value` on an
 // already-mounted card does NOT re-fire this -- it only plays on true mount, i.e. a tab switch
 // (each tab's content remounts via the outer `key={tab}` in the AnimatePresence wrapper).
+// Rolls a KPI to its new value when a slider moves (the mount stagger above only covers tab switches).
+// Takes the already-formatted string ("$12,345", "$1.2k", "14d", "+15%", "3.4%", "25×") so call sites keep
+// their formatters; splits it into prefix / number / suffix. Anything else ("–", text) renders as is.
+// NumberFlow honours prefers-reduced-motion on its own.
+const NUM_RE=/^([^\d-]*)(-?\d[\d,]*(?:\.\d+)?)([^\d]*)$/;
+function AnimNum({ value }) {
+  if(typeof value==="number") value=String(value);
+  const m=typeof value==="string"&&value.match(NUM_RE);
+  if(!m) return value;
+  const [,prefix,num,suffix]=m;
+  const dec=(num.split(".")[1]||"").length;
+  return <NumberFlow value={parseFloat(num.replace(/,/g,""))} prefix={prefix} suffix={suffix}
+    format={{minimumFractionDigits:dec,maximumFractionDigits:dec,useGrouping:num.includes(",")}}
+    transformTiming={{duration:450,easing:"cubic-bezier(0.22,1,0.36,1)"}} spinTiming={{duration:450,easing:"cubic-bezier(0.22,1,0.36,1)"}}/>;
+}
 function KPICard({ label,value,sub,color=C.text,size=18,accent,i=0 }) {
   return (
     <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:Math.min(i,10)*0.045,ease:[0.22,1,0.36,1]}}
       style={{background:`linear-gradient(180deg, ${C.card}, ${C.card2})`,border:`1px solid ${accent||C.border}`,borderRadius:9,padding:"14px 16px",boxShadow:`inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 26px -22px ${color}`}}>
       <div style={{fontSize:10,fontWeight:600,color:C.muted,letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:5}}>{label}</div>
-      <div style={{fontSize:size,fontWeight:800,color,fontFamily:"monospace",lineHeight:1,textShadow:`0 0 20px ${color}44`}}>{value}</div>
+      <div style={{fontSize:size,fontWeight:800,color,fontFamily:"monospace",lineHeight:1,textShadow:`0 0 20px ${color}44`}}><AnimNum value={value}/></div>
       {sub&&<div style={{fontSize:11,color:C.muted,marginTop:5,lineHeight:1.4}}>{sub}</div>}
     </motion.div>
   );
@@ -758,23 +774,23 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
             <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:0,ease:[0.22,1,0.36,1]}}
               style={{background:C.gold+"15",border:`1px solid ${C.gold}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.gold,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enFondeo}</div>
-              <div style={{fontSize:36,fontWeight:800,color:C.gold,fontFamily:"monospace",lineHeight:1}}>{accsRec}</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtK(stableFund)}/mes</div>
+              <div style={{fontSize:36,fontWeight:800,color:C.gold,fontFamily:"monospace",lineHeight:1}}><AnimNum value={accsRec}/></div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(stableFund)}/>/mes</div>
             </motion.div>
             <div style={{fontSize:18,color:C.dim,alignSelf:"center"}}>→</div>
             {/* Live accounts answer */}
             <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.06,ease:[0.22,1,0.36,1]}}
               style={{background:C.green+"15",border:`1px solid ${C.green}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.green,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enVivo}</div>
-              <div style={{fontSize:36,fontWeight:800,color:C.green,fontFamily:"monospace",lineHeight:1}}>{accsLive}</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{fmtK(accsLive*month2Live)}/mes</div>
+              <div style={{fontSize:36,fontWeight:800,color:C.green,fontFamily:"monospace",lineHeight:1}}><AnimNum value={accsLive}/></div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(accsLive*month2Live)}/>/mes</div>
             </motion.div>
             {/* Other stats */}
             {[{l:t.hNet,v:fmtK(monthlyNet),c:C.gold},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c},i)=>(
               <motion.div key={l} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.32,delay:.12+i*0.05,ease:[0.22,1,0.36,1]}}
                 style={{background:c+"12",border:`1px solid ${c}30`,borderRadius:7,padding:"7px 12px",textAlign:"center",minWidth:80}}>
                 <div style={{fontSize:9,color:c,fontWeight:600,letterSpacing:"0.7px",marginBottom:2,textTransform:"uppercase"}}>{l}</div>
-                <div style={{fontSize:16,fontWeight:800,color:c,fontFamily:"monospace"}}>{v}</div>
+                <div style={{fontSize:16,fontWeight:800,color:c,fontFamily:"monospace"}}><AnimNum value={v}/></div>
               </motion.div>
             ))}
           </div>
