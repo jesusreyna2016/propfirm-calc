@@ -16,7 +16,7 @@ const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
 // ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
 const T = {
   es: {
-    langBtn:"🇺🇸 EN", title:"Simulador Propfirm",
+    langBtn:"EN", title:"Simulador Propfirm",
     subtitle:"Gratis. Cuántas cuentas para tu meta, riesgo de blow-up (Monte Carlo) y neto real tras fees e impuestos.",
     hFunded:"Fondeo/mes", hLive:"Vivo/mes", hNet:"Neto/mes", hPipeline:"Pipeline",
     phEval:"EVALUACIÓN", phFunded:"FONDEADA", phLive:"EN VIVO",
@@ -159,7 +159,7 @@ const T = {
     accsRecLabel:"RECOMENDADO (cubre ambos)",
   },
   en: {
-    langBtn:"🇪🇸 ES", title:"Propfirm System Calculator",
+    langBtn:"ES", title:"Propfirm System Calculator",
     subtitle:"Free. How many accounts to hit your goal, blow-up risk (Monte Carlo), and real net after fees and tax.",
     hFunded:"Funded/mo", hLive:"Live/mo", hNet:"Net/mo", hPipeline:"Pipeline",
     phEval:"EVALUATION", phFunded:"FUNDED", phLive:"LIVE",
@@ -735,7 +735,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
   .g3{grid-template-columns:1fr 1fr!important}
   .gneto{grid-template-columns:1fr!important}
   .gform{grid-template-columns:1fr!important}
-  .hdrchips{overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+  .hdrchips{flex-wrap:wrap;row-gap:8px}
   .hdrchips>*{flex-shrink:0}
 }
 @media(max-width:480px){
@@ -775,7 +775,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               style={{background:C.gold+"15",border:`1px solid ${C.gold}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.gold,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enFondeo}</div>
               <div style={{fontSize:36,fontWeight:800,color:C.gold,fontFamily:"monospace",lineHeight:1}}><AnimNum value={accsRec}/></div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(stableFund)}/>/mes</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(stableFund)}/>{lang==="es"?"/mes":"/mo"}</div>
             </motion.div>
             <div style={{fontSize:18,color:C.dim,alignSelf:"center"}}>→</div>
             {/* Live accounts answer */}
@@ -783,7 +783,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
               style={{background:C.green+"15",border:`1px solid ${C.green}50`,borderRadius:9,padding:"8px 16px",textAlign:"center",minWidth:100}}>
               <div style={{fontSize:9,color:C.green,fontWeight:700,letterSpacing:"0.8px",marginBottom:2,textTransform:"uppercase"}}>{t.enVivo}</div>
               <div style={{fontSize:36,fontWeight:800,color:C.green,fontFamily:"monospace",lineHeight:1}}><AnimNum value={accsLive}/></div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(accsLive*month2Live)}/>/mes</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}><AnimNum value={fmtK(accsLive*month2Live)}/>{lang==="es"?"/mes":"/mo"}</div>
             </motion.div>
             {/* Other stats */}
             {[{l:t.hNet,v:fmtK(monthlyNet),c:C.gold},{l:t.hPipeline,v:fmtK(pipelineIncome),c:C.blue}].map(({l,v,c},i)=>(
@@ -899,7 +899,7 @@ input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-outer-s
                 {l:t.kC1,v:`${c1Days}d`,c:C.blue,s:t.kC1s},
                 {l:t.kC2,v:`${c2Days}d`,c:C.gold,s:t.kC2s},
                 {l:t.kBuf,v:fmt(bufferAfter),c:C.purple,s:`${((bufferAfter/triggerPnl)*100).toFixed(0)}% ${t.kBufSuf}`},
-                {l:t.kFacc,v:fmt(month2Fund),c:C.gold,s:`${Math.floor(tradingDays/c2Days)} retiros`},
+                {l:t.kFacc,v:fmt(month2Fund),c:C.gold,s:`${Math.floor(tradingDays/c2Days)} ${lang==="es"?"retiros":"withdrawals"}`},
                 {l:t.kLacc,v:fmt(month2Live),c:C.green,s:`${tradingDays}d × ${fmt(liveWithdraw)}`},
                 {l:`${accsRec} ${t.kXF}`,v:fmt(stableFund),c:C.gold,s:t.kSS},
                 {l:`${accsLive} ${t.kXL}`,v:fmt(accsLive*month2Live),c:C.green,s:t.kSS},
